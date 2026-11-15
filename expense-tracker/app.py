@@ -1,6 +1,12 @@
 from flask import Flask, render_template
 
+from database.db import get_db, init_db, seed_db  # noqa: F401  (get_db used in later steps)
+
 app = Flask(__name__)
+
+with app.app_context():
+    init_db()
+    seed_db()
 
 
 # ------------------------------------------------------------------ #
