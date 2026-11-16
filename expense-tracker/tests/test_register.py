@@ -1,23 +1,9 @@
-import importlib
 import sqlite3
 
 import pytest
 from werkzeug.security import check_password_hash
 
 from database import db
-
-
-@pytest.fixture
-def client(tmp_path, monkeypatch):
-    """Test client backed by a throwaway DB so the real spendly.db is never touched."""
-    monkeypatch.setattr(db, "DB_PATH", str(tmp_path / "test.db"))
-
-    import app as app_module
-
-    # Reloading re-runs init_db()/seed_db() against the patched DB_PATH.
-    importlib.reload(app_module)
-    app_module.app.config["TESTING"] = True
-    return app_module.app.test_client()
 
 
 def post_register(client, name="Test User", email="test@example.com", password="password123"):

@@ -1,0 +1,243 @@
+/* Profile page only. Colours come from the variables in style.css. */
+
+.profile {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+}
+
+/* Header */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    flex: 0 0 auto;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--paper-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+}
+
+.profile-identity {
+    min-width: 0;
+}
+
+.profile-name {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.profile-email {
+    color: var(--ink-soft);
+    overflow-wrap: anywhere;
+}
+
+.profile-since {
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+}
+
+/* Stat cards */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+    padding: 1.1rem 1.25rem;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.stat-label {
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+}
+
+/* Panels */
+.profile-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.panel {
+    min-width: 0;
+    padding: 1.5rem;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.panel-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--ink);
+    margin-bottom: 1.1rem;
+}
+
+/* Category breakdown */
+.cat-list,
+.recent-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.cat-row + .cat-row {
+    margin-top: 1rem;
+}
+
+.cat-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+}
+
+.cat-name {
+    flex: 1;
+    color: var(--ink);
+    font-weight: 500;
+}
+
+.cat-amount {
+    color: var(--ink-soft);
+}
+
+.cat-pct {
+    min-width: 3rem;
+    text-align: right;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+}
+
+.cat-bar {
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent-light);
+    overflow: hidden;
+}
+
+.cat-bar::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: calc(var(--pct) * 1%);
+    background: var(--accent);
+    border-radius: 999px;
+}
+
+/* Recent expenses */
+.recent-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.recent-row:first-child {
+    padding-top: 0;
+}
+
+.recent-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.recent-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.recent-desc {
+    color: var(--ink);
+    overflow-wrap: anywhere;
+}
+
+.recent-sub {
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+}
+
+.recent-amount {
+    flex: 0 0 auto;
+    color: var(--ink);
+    font-weight: 500;
+}
+
+/* Empty state */
+.profile-empty {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    background: var(--paper-card);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+}
+
+.profile-empty-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+}
+
+.profile-empty-text {
+    color: var(--ink-muted);
+    margin-bottom: 1.25rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .profile-panels {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .profile {
+        padding: 1.5rem 1rem 3rem;
+    }
+
+    .stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-name {
+        font-size: 1.6rem;
+    }
+}

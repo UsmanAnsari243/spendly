@@ -17,18 +17,19 @@
             <div class="auth-error">{{ error }}</div>
             {% endif %}
 
-            <form method="POST" action="/login">
+            <form method="POST" action="{{ url_for('login') }}">
                 <div class="form-group">
                     <label for="email">Email address</label>
                     <input type="email" id="email" name="email"
                            class="form-input" placeholder="ahmed@example.com"
-                           required autofocus>
+                           value="{{ email or '' }}"
+                           required {% if not email %}autofocus{% endif %}>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password"
                            class="form-input" placeholder="Your password"
-                           required>
+                           required {% if email %}autofocus{% endif %}>
                 </div>
                 <button type="submit" class="btn-submit">Sign in</button>
             </form>
