@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Profile · Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="profile">
+    <div class="profile-inner">
+
+        <header class="profile-header">
+            <div class="profile-avatar" aria-hidden="true">{{ user.name|initials }}</div>
+            <div class="profile-identity">
+                <h1 class="profile-name">{{ user.name }}</h1>
+                <p class="profile-email">{{ user.email }}</p>
+                {% if user.created_at|member_since %}
+                <p class="profile-since">Member since {{ user.created_at|member_since }}</p>
+                {% endif %}
+            </div>
+            <div class="profile-actions">
+                <a class="btn-ghost" href="{{ url_for('edit_profile') }}">Edit profile</a>
+                <a class="btn-ghost" href="{{ url_for('change_password') }}">Change password</a>
+            </div>
+        </header>
+
+        <section class="profile-stats" aria-label="Spending summary">
+            <article class="stat-card">
+                <p class="stat-label">Total spent{% if period_expenses is not none %} (selected period){% endif %}</p>
+                <p class="stat-value">{{ summary.total|pkr }}</p>
+            </article>
+            <article class="stat-card">
+                <p class="stat-label">{{ month_label }}</p>
+                <p class="stat-value">{{ summary.month_total|pkr }}</p>
+            </article>
+            <article class="stat-card">
+                <p class="stat-label">Expenses</p>
+                <p class="stat-value">{{ summary.count }}</p>
+            </article>
+            <article class="stat-card">
+                <p class="stat-label">Top category</p>
+                <p class="stat-value">{{ top.category if top else "None yet" }}</p>
+                {% if top %}
+                <p class="stat-note">{{ top.total|pkr }}</p>
+                {% endif %}
+            </article>
+        </section>
+
+        <section class="profile-panel period" id="period">
+            <h2 class="panel-title">Expenses by period</h2>
+            <form method="get" action="{{ url_for('profile', _anchor='period') }}" class="period-form">
+                <div class="period-field">
+                    <label for="period-from">From</label>
+                    <input type="date" id="period-from" name="from" class="form-input"
+                           value="{{ period_from }}" max="{{ today }}" required>
+                </div>
+                <div class="period-field">
+                    <label for="period-to">To</label>
+                    <input type="date" id="period-to" name="to" class="form-input"
+                           value="{{ period_to }}" max="{{ today }}" required>
+                </div>
+                <div class="period-actions">
+                    <button type="submit" class="btn-primary">Show expenses</button>
+                    {% if period_from or period_to %}
+                    <a href="{{ url_for('profile') }}" class="btn-ghost">Clear</a>
+                    {% endif %}
+                </div>
+            </form>
+
+            {% if period_error %}
+            <p class="period-error" role="alert">{{ period_error }}</p>
+            {% elif period_expenses is not none %}
+                {% if period_expenses %}
+                <p class="period-summary">
+                    {{ period_expenses|length }} expense{{ '' if period_expenses|length == 1 else 's' }}
+                    · {{ period_total|pkr }}
+                    · {{ period_from }} to {{ period_to }}
+                </p>
+                <ul class="recent-list">
+                    {% for expense in period_expenses %}
+                    <li class="recent-row">
+                        <span class="recent-date">{{ expense.date }}</span>
+                        <span class="recent-desc">{{ expense.description or expense.category }}</span>
+                        <span class="recent-category">{{ expense.category }}</span>
+                        <span class="recent-amount">{{ expense.amount|pkr }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="period-summary">No expenses between {{ period_from }} and {{ period_to }}.</p>
+                {% endif %}
+            {% else %}
+            <p class="period-hint">Pick a start and end date to see every expense in that period.</p>
+            {% endif %}
+        </section>
+
+        {% if breakdown %}
+        <div class="profile-panels">
+            <section class="profile-panel">
+                <h2 class="panel-title">By category</h2>
+                <ul class="breakdown-list">
+                    {% for row in breakdown %}
+                    <li class="breakdown-row">
+                        <div class="breakdown-meta">
+                            <span class="breakdown-name">{{ row.category }}</span>
+                            <span class="breakdown-amount">{{ row.total|pkr }}</span>
+                            <span class="breakdown-pct">{{ row.pct }}%</span>
+                        </div>
+                        <div class="breakdown-track">
+                            <div class="breakdown-bar" style="--pct: {{ row.pct }}"></div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="profile-panel">
+                <h2 class="panel-title">Recent expenses</h2>
+                <ul class="recent-list">
+                    {% for expense in recent %}
+                    <li class="recent-row">
+                        <span class="recent-date">{{ expense.date }}</span>
+                        <span class="recent-desc">{{ expense.description or expense.category }}</span>
+                        <span class="recent-category">{{ expense.category }}</span>
+                        <span class="recent-amount">{{ expense.amount|pkr }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+        {% else %}
+        <section class="profile-panel profile-empty">
+            <p class="empty-title">No expenses yet</p>
+            <p class="empty-text">Add your first expense to see your spending summary here.</p>
+            <a href="{{ url_for('add_expense') }}" class="btn-primary">Add your first expense</a>
+        </section>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
