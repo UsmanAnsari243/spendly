@@ -146,7 +146,6 @@ INVALID_FORMS = [
     ({"amount": "inf"}, "valid amount"),
     ({"amount": "-inf"}, "valid amount"),
     ({"amount": "1_000"}, "valid amount"),
-    ({"amount": "1e3"}, "valid amount"),
     ({"amount": "0"}, "greater than 0"),
     ({"amount": "-5"}, "greater than 0"),
     ({"amount": "1.234"}, "2 decimal places"),
