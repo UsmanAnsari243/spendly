@@ -264,3 +264,21 @@ def get_recent_expenses(user_id, limit=5):
         ).fetchall()
     finally:
         conn.close()
+
+
+def create_expense(user_id, amount, category, expense_date, description=None):
+    """Insert one expense for a user and return the new expense id.
+
+    `expense_date` is a "YYYY-MM-DD" string. Validation is the caller's job.
+    """
+    conn = get_db()
+    try:
+        with conn:
+            cursor = conn.execute(
+                "INSERT INTO expenses (user_id, amount, category, date, description) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (user_id, amount, category, expense_date, description),
+            )
+            return cursor.lastrowid
+    finally:
+        conn.close()

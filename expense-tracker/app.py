@@ -2,11 +2,14 @@ import math
 import os
 import sqlite3
 from datetime import date, datetime
+from decimal import Decimal, InvalidOperation
 
 from flask import Flask, abort, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash
 
 from database.db import (  # noqa: F401  (get_db used in later steps)
+    CATEGORIES,
+    create_expense,
     create_user,
     get_category_breakdown,
     get_db,
@@ -125,6 +128,59 @@ def validate_name_email(name_raw, email_raw):
         return name, email, "Please enter a valid email address."
 
     return name, email, None
+
+
+MAX_EXPENSE_AMOUNT = Decimal("10000000")
+MAX_DESCRIPTION_LENGTH = 200
+
+
+def validate_expense(amount_raw, category_raw, date_raw, description_raw):
+    """Validate an expense form; return (amount, category, date, description, error).
+
+    On failure every value is None except `error`, which holds the message.
+    """
+    def failure(message):
+        return None, None, None, None, message
+
+    amount_text = amount_raw.strip()
+    if not amount_text:
+        return failure("Amount is required.")
+    try:
+        amount = Decimal(amount_text)
+    except InvalidOperation:
+        return failure("Please enter a valid amount.")
+    # Decimal happily parses "nan" and "inf", and comparing a NaN raises.
+    if "_" in amount_text or not amount.is_finite():
+        return failure("Please enter a valid amount.")
+    if amount <= 0:
+        return failure("Amount must be greater than 0.")
+    if amount > MAX_EXPENSE_AMOUNT:
+        return failure("Amount must be at most PKR 10,000,000.")
+    if amount.normalize().as_tuple().exponent < -2:
+        return failure("Amount can have at most 2 decimal places.")
+
+    category = category_raw.strip()
+    if category not in CATEGORIES:
+        return failure("Please choose a valid category.")
+
+    date_text = date_raw.strip()
+    try:
+        # Length check keeps Python 3.11+ from accepting "20260101" style input.
+        if len(date_text) != 10:
+            raise ValueError
+        expense_date = date.fromisoformat(date_text)
+    except ValueError:
+        return failure("Please enter a valid date.")
+    if expense_date > date.today():
+        return failure("Date cannot be in the future.")
+
+    description = description_raw.strip()
+    if len(description) > MAX_DESCRIPTION_LENGTH:
+        return failure(
+            f"Description must be {MAX_DESCRIPTION_LENGTH} characters or fewer."
+        )
+
+    return float(amount), category, expense_date.isoformat(), description or None, None
 
 
 with app.app_context():
@@ -320,9 +376,43 @@ def change_password():
 # Placeholder routes — implemented in later steps                     #
 # ------------------------------------------------------------------ #
 
-@app.route("/expenses/add")
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    user = load_session_user()
+    today = date.today().isoformat()
+
+    if request.method == "GET":
+        return render_template(
+            "add_expense.html", categories=CATEGORIES, today=today, expense_date=today
+        )
+
+    amount_raw = request.form.get("amount", "")
+    category_raw = request.form.get("category", "")
+    date_raw = request.form.get("date", "")
+    description_raw = request.form.get("description", "")
+
+    amount, category, expense_date, description, error = validate_expense(
+        amount_raw, category_raw, date_raw, description_raw
+    )
+
+    if error:
+        return (
+            render_template(
+                "add_expense.html",
+                error=error,
+                categories=CATEGORIES,
+                today=today,
+                amount=amount_raw,
+                category=category_raw,
+                expense_date=date_raw,
+                description=description_raw,
+            ),
+            400,
+        )
+
+    # Always the session user: any user_id sent in the form is ignored.
+    create_expense(user["id"], amount, category, expense_date, description)
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:expense_id>/edit")

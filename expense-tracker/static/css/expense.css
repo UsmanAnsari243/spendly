@@ -1,0 +1,19 @@
+/* Add-expense page only; shared form styles live in style.css. */
+
+.expense-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.expense-select {
+    appearance: auto;
+    cursor: pointer;
+}
+
+@media (max-width: 480px) {
+    .expense-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
